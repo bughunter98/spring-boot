@@ -4,7 +4,6 @@ import com.udemypractise.SpringBootTutorialPractise.model.StudentEntity;
 import com.udemypractise.SpringBootTutorialPractise.repository.StudentRepository;
 import com.udemypractise.SpringBootTutorialPractise.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +53,47 @@ public class UserServiceImpl implements UserService {
         }
         else {
             throw new Exception("Cannot fetch the Student Details by given id ");
+        }
+    }
+
+    @Override
+    public List<StudentEntity> getAllStudents() throws Exception {
+        List<StudentEntity> studentEntities = studentRepository.findAll();
+        if (studentEntities.isEmpty()){
+            throw new Exception("The Student List is Empty.....");
+        }
+        else {
+            return studentEntities;
+        }
+    }
+
+    @Override
+    public StudentEntity updateStudents(StudentEntity student) throws Exception {
+        Optional<StudentEntity> studentEntity = studentRepository.findById(student.getId());
+       // Optional<StudentEntity> find = studentRepository.findById(student.getId());
+        if (studentEntity.isPresent()){
+            studentEntity.get().setId(student.getId());
+            studentEntity.get().setFirstName(student.getFirstName()!=null ?
+                    student.getFirstName() : studentEntity.get().getFirstName());
+            studentEntity.get().setLastName(student.getLastName()!=null ?
+                    student.getFirstName() : studentEntity.get().getLastName());
+            studentEntity.get().setEmail(student.getEmail()!=null ?
+                    student.getEmail() : studentEntity.get().getEmail());
+            return studentRepository.save(studentEntity.get());
+        }
+        else {
+            throw new Exception("Cant update Data ... No Student found with given id...");
+        }
+    }
+
+    @Override
+    public void deleteStudentbyId(int studentid) throws Exception {
+        Optional<StudentEntity> studentEntity = studentRepository.findById(studentid);
+        if (studentEntity.isPresent()){
+            studentRepository.delete(studentEntity.get());
+        }
+        else {
+            throw new Exception("Data cannot be deleted ....Id mismatch");
         }
     }
 

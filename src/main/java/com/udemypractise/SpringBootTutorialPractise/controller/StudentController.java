@@ -8,6 +8,8 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/student")
 public class StudentController {
@@ -34,6 +36,26 @@ public class StudentController {
     public ResponseEntity<StudentEntity> getStudentbyId(@PathVariable("id") int studentId) throws Exception {
         StudentEntity studentDetails = userService.getStudentbyId(studentId);
         return new ResponseEntity<>(studentDetails,HttpStatus.FOUND);
+    }
+    @GetMapping("getAllStudents")
+    public ResponseEntity<List<StudentEntity>> getAllStudents() throws Exception {
+        List<StudentEntity>studentEntities = userService.   getAllStudents();
+        return new ResponseEntity<>(studentEntities,HttpStatus.FOUND);
+    }
+
+    @PutMapping("updateStudent")
+    //Put mapping can be used if and only if all the fields in the pojo are available in request
+    //generally for put mapping we need to add all the fields of pojo in json.
+    //here just for example , i tried to implement put mapping with any one field. so this would act as patch mapping as well.
+    public ResponseEntity<StudentEntity> updateStudent(@RequestBody StudentEntity student) throws Exception {
+        StudentEntity studentEntities = userService.updateStudents(student);
+        return new ResponseEntity<>(studentEntities,HttpStatus.OK);
+    }
+
+    @DeleteMapping("deleteStudent/{id}")
+    public ResponseEntity<String> deleteStudent(@PathVariable("id") int studentid) throws Exception{
+        userService.deleteStudentbyId(studentid);
+        return new ResponseEntity<>("Student Data Deleted",HttpStatus.OK);
     }
 
 }
