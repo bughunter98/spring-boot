@@ -16,9 +16,9 @@ public class StudentEntity {
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
-    @Column(nullable = false)
+    @Column //(nullable = false)
     private String firstName;
-    @Column(nullable = false)
+    @Column //(nullable = false)
     private String lastName;
     @Column(nullable = false,unique = true)
     private String email;

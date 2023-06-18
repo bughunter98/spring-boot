@@ -1,12 +1,13 @@
 package com.udemypractise.SpringBootTutorialPractise.service;
 
+import com.udemypractise.SpringBootTutorialPractise.DTO.StudentDto;
 import com.udemypractise.SpringBootTutorialPractise.model.StudentEntity;
 import org.springframework.http.RequestEntity;
 
 import java.util.List;
 
 public interface UserService {
-    StudentEntity createUser(StudentEntity student) throws Exception;
+    StudentDto createUser(StudentDto student) throws Exception;
 
     StudentEntity createUserwithRequestEntity(RequestEntity<StudentEntity> student);
 

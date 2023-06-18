@@ -1,5 +1,6 @@
 package com.udemypractise.SpringBootTutorialPractise.controller;
 
+import com.udemypractise.SpringBootTutorialPractise.DTO.StudentDto;
 import com.udemypractise.SpringBootTutorialPractise.model.StudentEntity;
 import com.udemypractise.SpringBootTutorialPractise.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +19,12 @@ public class StudentController {
     private UserService userService;
 
     @PostMapping("createStudent")
-    public StudentEntity createStudent(@RequestBody StudentEntity student) throws Exception {
+    public StudentDto createStudent(@RequestBody StudentDto student) throws Exception {
         return userService.createUser(student);
     }
     @PostMapping("createStudent1")
-    public ResponseEntity<StudentEntity> createStudentwithResponseEntity(@RequestBody StudentEntity student) throws Exception {
-        StudentEntity user = userService.createUser(student);
+    public ResponseEntity<StudentDto> createStudentwithResponseEntity(@RequestBody StudentDto student) throws Exception {
+        StudentDto user = userService.createUser(student);
         return new ResponseEntity<>(user,HttpStatus.CREATED);
     }
     @PostMapping("createStudent2")

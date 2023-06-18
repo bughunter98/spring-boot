@@ -1,5 +1,7 @@
 package com.udemypractise.SpringBootTutorialPractise.service.impl;
 
+import com.udemypractise.SpringBootTutorialPractise.DTO.StudentDto;
+import com.udemypractise.SpringBootTutorialPractise.Utilities.StudentUtilities;
 import com.udemypractise.SpringBootTutorialPractise.model.StudentEntity;
 import com.udemypractise.SpringBootTutorialPractise.repository.StudentRepository;
 import com.udemypractise.SpringBootTutorialPractise.service.UserService;
@@ -15,19 +17,32 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private StudentRepository studentRepository;
     @Override
-    public StudentEntity createUser(StudentEntity student) throws Exception {
+    public StudentDto createUser(StudentDto studentDto) throws Exception {
 
-                if (student.getId()!=findbyStudentId(student))
-                {
-                    return studentRepository.save(student);
-                }
-                else {
-                    throw new Exception("Id already exists.. please use new id");
-                }
-        //    else {
-                 //This condition is executed only if there is empty table else it wont be executed
-        //    }
-    }
+        //here we are converting the DTO object to stundent entity to save the data in db
+        StudentEntity  student = StudentUtilities.maptoStudentEntity(studentDto);
+        System.out.println("Student Details to be created are :"+student);
+            if (student.getId()!=findbyStudentId(student))
+            {
+                //save method returns saved studnt details of type studententity
+                StudentEntity savedStudent = studentRepository.save(student);
+
+                /*now we have to convert studententity to student dto and return the response
+                 we can simply return the data from the arguments studentDto but inorder to get id of student which is generated
+                 we need to get it from student entity only . so we are converting it
+
+                savedStudentDto will have id also .where as the studentDto which is passed as arguments does not
+                contain it because id is generated in save method of JPA repo.*/
+                    StudentDto savedStudentDto = StudentUtilities.maptoStudentDto(savedStudent);
+                return savedStudentDto;
+            }
+            else {
+                throw new Exception("Id already exists.. please use new id");
+            }
+            //    else {
+            //This condition is executed only if there is empty table else it wont be executed
+            //    }
+        }
 
     @Override
     public StudentEntity createUserwithRequestEntity(RequestEntity<StudentEntity> student) {
