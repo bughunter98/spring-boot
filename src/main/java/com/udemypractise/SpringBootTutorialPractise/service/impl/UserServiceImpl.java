@@ -10,6 +10,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -60,11 +61,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public StudentEntity getStudentbyId(int id) throws Exception {
+    public StudentDto getStudentbyId(int id) throws Exception {
         Integer studentId = id;
         Optional<StudentEntity> value = studentRepository.findById(studentId);
         if (value.isPresent()){
-            return value.get();
+            StudentEntity studentEntity =  value.get();
+            return StudentUtilities.maptoStudentDto(studentEntity);
         }
         else {
             throw new Exception("Cannot fetch the Student Details by given id ");
@@ -72,29 +74,62 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<StudentEntity> getAllStudents() throws Exception {
+    public List<StudentDto> getAllStudents() throws Exception {
         List<StudentEntity> studentEntities = studentRepository.findAll();
         if (studentEntities.isEmpty()){
             throw new Exception("The Student List is Empty.....");
         }
         else {
-            return studentEntities;
+            //we can do this through adding map data to constructor also . eg :
+            //List<StudentDto> studentDtos = studentEntities.stream().map(data-> new StudentDto(data.getId(),data.getFirstName(),data.getLastName() , data.getEmail())).collect(Collectors.toList());
+            List<StudentDto> studentDto = studentEntities.stream().map(data-> {
+                try {
+                    return StudentUtilities.maptoStudentDto(data);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
+
+             return studentDto;
         }
     }
 
     @Override
-    public StudentEntity updateStudents(StudentEntity student) throws Exception {
-        Optional<StudentEntity> studentEntity = studentRepository.findById(student.getId());
+    public StudentDto updateStudents(StudentDto student) throws Exception {
+        Optional<StudentEntity> studentEntity = null;//studentRepository.findById(student.getId());
        // Optional<StudentEntity> find = studentRepository.findById(student.getId());
+        Optional<StudentDto> studentDtoOptional = Optional.of(student);
+
+        if (studentDtoOptional.isPresent()){
+          //  we can do this like this also
+            //  studentEntity.map(data-> new StudentDto(data.getId(), data.getFirstName(), data.getLastName(), data.getEmail()));
+            studentEntity = studentRepository.findById(studentDtoOptional.get().getId());
+        }
+
         if (studentEntity.isPresent()){
-            studentEntity.get().setId(student.getId());
-            studentEntity.get().setFirstName(student.getFirstName()!=null ?
-                    student.getFirstName() : studentEntity.get().getFirstName());
-            studentEntity.get().setLastName(student.getLastName()!=null ?
-                    student.getFirstName() : studentEntity.get().getLastName());
-            studentEntity.get().setEmail(student.getEmail()!=null ?
-                    student.getEmail() : studentEntity.get().getEmail());
-            return studentRepository.save(studentEntity.get());
+            studentDtoOptional.get().setId(student.getId());
+            studentDtoOptional.get().setFirstName(studentDtoOptional.get().getFirstName()!=null ?
+                    studentDtoOptional.get().getFirstName() : studentEntity.get().getFirstName());
+            studentDtoOptional.get().setLastName(studentDtoOptional.get().getLastName()!=null ?
+                    studentDtoOptional.get().getFirstName() : studentEntity.get().getLastName());
+            studentDtoOptional.get().setEmail(studentDtoOptional.get().getEmail()!=null ?
+                    studentDtoOptional.get().getEmail() : studentEntity.get().getEmail());
+            //we can pass data by constructor also like
+            //studentDtoOptional.map(data-> new StudentEntity(data.getId,data.getFirstname,data.getLastName,data.getEmailID)).get;
+            StudentEntity tobeSaved = studentDtoOptional.map(data-> {
+                try {
+                    return StudentUtilities.maptoStudentEntity(data);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).get();
+
+            StudentEntity updatedStudentInfo = studentRepository.save(tobeSaved);
+
+            StudentDto updatedStudentResponse = StudentUtilities.maptoStudentDto(updatedStudentInfo);
+
+            return updatedStudentResponse;
+
         }
         else {
             throw new Exception("Cant update Data ... No Student found with given id...");

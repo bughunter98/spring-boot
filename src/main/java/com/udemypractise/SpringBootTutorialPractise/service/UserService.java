@@ -11,11 +11,11 @@ public interface UserService {
 
     StudentEntity createUserwithRequestEntity(RequestEntity<StudentEntity> student);
 
-    StudentEntity getStudentbyId(int id) throws Exception;
+    StudentDto getStudentbyId(int id) throws Exception;
 
-    List<StudentEntity> getAllStudents() throws Exception;
+    List<StudentDto> getAllStudents() throws Exception;
 
-    StudentEntity updateStudents(StudentEntity student) throws Exception;
+    StudentDto updateStudents(StudentDto student) throws Exception;
 
     void deleteStudentbyId(int studentid) throws Exception;
 }

@@ -34,23 +34,23 @@ public class StudentController {
     }
 
     @GetMapping("getStudent/{id}")
-    public ResponseEntity<StudentEntity> getStudentbyId(@PathVariable("id") int studentId) throws Exception {
-        StudentEntity studentDetails = userService.getStudentbyId(studentId);
+    public ResponseEntity<StudentDto> getStudentbyId(@PathVariable("id") int studentId) throws Exception {
+        StudentDto studentDetails = userService.getStudentbyId(studentId);
         return new ResponseEntity<>(studentDetails,HttpStatus.FOUND);
     }
     @GetMapping("getAllStudents")
-    public ResponseEntity<List<StudentEntity>> getAllStudents() throws Exception {
-        List<StudentEntity>studentEntities = userService.   getAllStudents();
-        return new ResponseEntity<>(studentEntities,HttpStatus.FOUND);
+    public ResponseEntity<List<StudentDto>> getAllStudents() throws Exception {
+        List<StudentDto>studentDtos = userService.getAllStudents();
+        return new ResponseEntity<>(studentDtos,HttpStatus.FOUND);
     }
 
     @PutMapping("updateStudent")
     //Put mapping can be used if and only if all the fields in the pojo are available in request
     //generally for put mapping we need to add all the fields of pojo in json.
     //here just for example , i tried to implement put mapping with any one field. so this would act as patch mapping as well.
-    public ResponseEntity<StudentEntity> updateStudent(@RequestBody StudentEntity student) throws Exception {
-        StudentEntity studentEntities = userService.updateStudents(student);
-        return new ResponseEntity<>(studentEntities,HttpStatus.OK);
+    public ResponseEntity<StudentDto> updateStudent(@RequestBody StudentDto student) throws Exception {
+        StudentDto studentDto = userService.updateStudents(student);
+        return new ResponseEntity<>(studentDto,HttpStatus.OK);
     }
 
     @DeleteMapping("deleteStudent/{id}")
