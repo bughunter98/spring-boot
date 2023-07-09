@@ -2,6 +2,8 @@ package com.udemypractise.SpringBootTutorialPractise.service.impl;
 
 import com.udemypractise.SpringBootTutorialPractise.DTO.StudentDto;
 import com.udemypractise.SpringBootTutorialPractise.Utilities.StudentUtilities;
+import com.udemypractise.SpringBootTutorialPractise.exception.EmailAlreadyExistsException;
+import com.udemypractise.SpringBootTutorialPractise.exception.ResourceNotFoundException;
 import com.udemypractise.SpringBootTutorialPractise.model.StudentEntity;
 import com.udemypractise.SpringBootTutorialPractise.repository.StudentRepository;
 import com.udemypractise.SpringBootTutorialPractise.service.UserService;
@@ -22,11 +24,16 @@ public class UserServiceImpl implements UserService {
 
         //here we are converting the DTO object to stundent entity to save the data in db
         StudentEntity  student = StudentUtilities.maptoStudentEntity(studentDto);
+        Optional<StudentEntity> studentEntity = studentRepository.findByEmail(studentDto.getEmail());
         System.out.println("Student Details to be created are :"+student);
             if (student.getId()!=findbyStudentId(student))
             {
-                //save method returns saved studnt details of type studententity
-                StudentEntity savedStudent = studentRepository.save(student);
+                if (studentEntity.isPresent()){
+                    throw new EmailAlreadyExistsException("Email id Already Exists for User");
+                }
+                else {
+                    //save method returns saved studnt details of type studententity
+                    StudentEntity savedStudent = studentRepository.save(student);
 
                 /*now we have to convert studententity to student dto and return the response
                  we can simply return the data from the arguments studentDto but inorder to get id of student which is generated
@@ -35,7 +42,8 @@ public class UserServiceImpl implements UserService {
                 savedStudentDto will have id also .where as the studentDto which is passed as arguments does not
                 contain it because id is generated in save method of JPA repo.*/
                     StudentDto savedStudentDto = StudentUtilities.maptoStudentDto(savedStudent);
-                return savedStudentDto;
+                    return savedStudentDto;
+                }
             }
             else {
                 throw new Exception("Id already exists.. please use new id");
@@ -63,21 +71,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public StudentDto getStudentbyId(int id) throws Exception {
         Integer studentId = id;
-        Optional<StudentEntity> value = studentRepository.findById(studentId);
-        if (value.isPresent()){
+        //Optional<StudentEntity> value = studentRepository.findById(studentId);
+        StudentEntity student = studentRepository.findById(studentId).orElseThrow(
+                ()-> new ResourceNotFoundException("Student","Id",studentId));
+        /*if (value.isPresent()){
             StudentEntity studentEntity =  value.get();
             return StudentUtilities.maptoStudentDto(studentEntity);
         }
         else {
             throw new Exception("Cannot fetch the Student Details by given id ");
-        }
+        }*/
+        // using another approach
+        return StudentUtilities.maptoStudentDto(student);
     }
 
     @Override
     public List<StudentDto> getAllStudents() throws Exception {
         List<StudentEntity> studentEntities = studentRepository.findAll();
         if (studentEntities.isEmpty()){
-            throw new Exception("The Student List is Empty.....");
+            throw new ResourceNotFoundException("Student List.....");
         }
         else {
             //we can do this through adding map data to constructor also . eg :
@@ -132,7 +144,7 @@ public class UserServiceImpl implements UserService {
 
         }
         else {
-            throw new Exception("Cant update Data ... No Student found with given id...");
+            throw new ResourceNotFoundException("Student","Id",student.getId());
         }
     }
 
@@ -143,7 +155,7 @@ public class UserServiceImpl implements UserService {
             studentRepository.delete(studentEntity.get());
         }
         else {
-            throw new Exception("Data cannot be deleted ....Id mismatch");
+            throw new ResourceNotFoundException("Data cannot be deleted ....Id mismatch");
         }
     }
 
